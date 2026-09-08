@@ -266,19 +266,34 @@ public:
 
 template<typename T>
 List<T>::List() {
+
     // TODO: dejar la lista vacía (head, tail en nullptr y size en 0).
-    this->head = nullptr;
-    this->tail = nullptr;
-    this->size = 0;
+
+    this->head = nullptr;   // La "cabeza" de la lista apunta hacia un puntero nulo.
+    this->tail = nullptr;   // La "cola" de la lista apunta hacia un puntero nulo.
+    this->size = 0;    // El tamaño de la lista es 0 debido a que no tiene elementos.
 }
 
 template<typename T>
 List<T>::List(const List<T> &other) {
+
     // TODO: crear la nueva lista, como una copia independiente de other
+
+    this->head = nullptr;   // Configuramos la "cabeza" de la nueva lista en un puntero vacío al ser creada recién.
+    this->tail = nullptr;  // Configuramos la "cola" de la nueva lista en un puntero vacío por el mismo motivo.
+    this->size = 0;      // Definimos el tamaño de la lista en 0 ya que se encuentra vacía al inicio.
+
+    const Node* actual = other.head;  // Creamos un nodo nuevo que apunte hacia la "cabeza" de la otra lista enlazada.
+        
+    while (actual != nullptr) {  // Recorremos los nodos de la lista enlazada a copiar hasta que obtengamos uno que apunte hacia un puntero vacío.
+        insert_tail(actual->value);  // Copiamos los valores de la otra lista enlazada en la "cola" de la creada recientemente.
+        actual = actual->next;   // Avanzamos hacia el siguiente nodo de la otra lista enlazada.  
+    }
 }
 
 template<typename T>
 List<T> &List<T>::operator=(const List<T> &other) {
+
     // TODO: reemplazar la lista actual con una copia independiente de other
     // La memoria anterior no debe perderse, sino liberarse correctamente
 }
@@ -290,46 +305,117 @@ List<T>::~List() {
 
 template<typename T>
 bool List<T>::is_empty() const {
+
     // TODO: devolver si la lista está vacía.
-    return true;
+
+    if (this->size != 0) {  // Si el tamaño de la lista es distinta de 0, entonces no está vacía y devuelve "false".
+        return false;
+    }
+
+    return true;  // Devuelve "true" si la lista no tiene elementos.
 }
 
 template<typename T>
 size_t List<T>::length() const {
+
     // TODO: devolver la cantidad de elementos.
-    return 0;
+
+    return this->size;  // Devuelve el tamaño de la lista enlazada.
 }
 
 template<typename T>
 void List<T>::insert_head(const T& value) {
+
     // TODO: reservar un nodo con new, enlazarlo al principio y
     // actualizar head/tail/size.
+
+    Node* nuevo_nodo_inicio = new Node(value);  // Creamos un nuevo nodo.
+
+    if (this->size == 0) {   // Comprobamos si la lista está vacía.
+        this->head = nuevo_nodo; // La cabeza de la lista pasa a ser el nuevo nodo.
+        this->tail = nuevo_nodo; // La cola de la lista pasa a ser el nuevo nodo.
+        this->size += 1;  // Agregamos 1 al tamaño de la lista luego de insertar el nuevo nodo.
+    }
+
+    else {  // Chequeamos el caso en cual la lista no esta vacía de antemano.
+        nuevo_nodo->next = this->head;  // El puntero siguiente al nuevo nodo pasa a ser la cabeza del anterior nodo.
+        this->head->prev = nuevo_nodo;  // El puntero previo al de la cabeza del nodo antiguo pasa a ser el nuevo nodo.
+        this->head = nuevo_nodo;  // La "cabeza" de la lista pasa a ser el nuevo nodo incorporado.
+        this->size += 1;  // Agregamos 1 al tamaño de la lista.
+    }
+
+    delete nuevo_nodo;
 }
 
 template<typename T>
 void List<T>::insert_tail(const T& value) {
+
     // TODO: reservar un nodo con new, enlazarlo al final y
     // actualizar head/tail/size.
+
+    Node* nuevo_nodo_final = new Node(value);  // Creamos un nuevo nodo que insertaremos al final de la lista.
+
+    if (this->size == 0) {
+        this->head = nuevo_nodo_final;
+        this->tail = nuevo_nodo_final;
+        this->size += 1;
+    }
+
+    else {
+        this->tail->next = nuevo_nodo_final;
+        nuevo_nodo_final->prev = this->tail;
+        this->tail = nuevo_nodo_final;
+        this->size += 1;
+    }
 }
 
 template<typename T>
 T List<T>::pop_head() {
+
     // TODO: sacar el primer nodo (con delete), devolver su valor.
+
+    T valor_del_nodo_inicial = this->head->value;  // Guardamos el valor de la "cabeza" de la lista para poder devolverlo al final y no perderlo
+                                                  //  al momento de eliminar su nodo correspondiente.
+
+    delete this->head;  // Borramos el nodo (nodo de la "cabeza" antigua de la lista) y liberamos su memoria.
+
+    this->head = this->head->next;  // Actualizamos el puntero de la "cabeza" de la lista para que apunte a su nodo siguiente.
+    this->head->prev = nullptr;   // Actualizamos el puntero previo de la "cabeza" de la lista a "nullptr" 
+                                 // (puntero vacío ya que es el anterior a la nueva "cabeza").
+    
+    return valor_del_nodo_inicial;  // Devolvemos el valor de la "cabeza" antigua de la lista.
 }
 
 template<typename T>
 T List<T>::pop_tail() {
+
     // TODO: sacar el último nodo (con delete), devolver su valor.
+
+    T valor_del_nodo_final = this->tail->value;  // Guardamos el valor de la "cola" de la lista para poder devolverlo luego y no perderlo al 
+                                                //  momento de eliminar su nodo correspondiente.
+
+    delete this->tail;  // Eliminamos el nodo (nodo de la "cola" antigua de la lista) y liberamos su memoria.
+
+    this->tail = this->tail->prev;  // Actualizamos el puntero de la "cola" de la lista para que apunte a su nodo anterior.
+    this->tail->next = nullptr;  // Actualizamos el puntero siguiente a la "cola" de la lista para que apunte a "nullptr".
+
+    return valor_del_nodo_final;  // Devolvemos el valor de la "cola" antigua de la lista.
 }
 
 template<typename T>
 const T& List<T>::peek_head() const {
+
     // TODO: devolver el valor del principio.
+
+    return this->head->value;  // Devolvemos el valor del nodo que se encuentra en la "cabeza" de la lista.
 }
 
 template<typename T>
 const T& List<T>::peek_tail() const {
+
     // TODO: devolver el valor del final.
+
+    return this->tail->value;  // Devolvemos el valor del nodo que se encuentra en la "cola" de la lista.
 }
 
 template <typename T>
