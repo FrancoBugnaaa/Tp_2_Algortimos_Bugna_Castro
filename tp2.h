@@ -332,14 +332,14 @@ void List<T>::insert_head(const T& value) {
     Node* nuevo_nodo_inicio = new Node(value);  // Creamos un nuevo nodo.
 
     if (this->size == 0) {   // Comprobamos si la lista está vacía.
-        this->head = nuevo_nodo; // La cabeza de la lista pasa a ser el nuevo nodo.
-        this->tail = nuevo_nodo; // La cola de la lista pasa a ser el nuevo nodo.
+        this->head = nuevo_nodo; // La "cabeza" de la lista pasa a ser el nuevo nodo.
+        this->tail = nuevo_nodo; // La "cola" de la lista pasa a ser el nuevo nodo.
         this->size += 1;  // Agregamos 1 al tamaño de la lista luego de insertar el nuevo nodo.
     }
 
-    else {  // Chequeamos el caso en cual la lista no esta vacía de antemano.
-        nuevo_nodo->next = this->head;  // El puntero siguiente al nuevo nodo pasa a ser la cabeza del anterior nodo.
-        this->head->prev = nuevo_nodo;  // El puntero previo al de la cabeza del nodo antiguo pasa a ser el nuevo nodo.
+    else {  // Chequeamos el caso en el cual la lista no esta vacía de antemano.
+        nuevo_nodo->next = this->head;  // El puntero siguiente al nuevo nodo pasa a ser la "cabeza" del anterior nodo.
+        this->head->prev = nuevo_nodo;  // El puntero previo al de la "cabeza" del nodo antiguo pasa a ser el nuevo nodo.
         this->head = nuevo_nodo;  // La "cabeza" de la lista pasa a ser el nuevo nodo incorporado.
         this->size += 1;  // Agregamos 1 al tamaño de la lista.
     }
@@ -355,17 +355,17 @@ void List<T>::insert_tail(const T& value) {
 
     Node* nuevo_nodo_final = new Node(value);  // Creamos un nuevo nodo que insertaremos al final de la lista.
 
-    if (this->size == 0) {
-        this->head = nuevo_nodo_final;
-        this->tail = nuevo_nodo_final;
-        this->size += 1;
+    if (this->size == 0) {  // Comprobamos si la lista está vacía
+        this->head = nuevo_nodo_final;  // La "cabeza" pasa a ser el nuevo nodo agregado.
+        this->tail = nuevo_nodo_final;  // La "cola" pasa a ser igualmente el nuevo nodo agregado ya que la lista tiene un solo elemento.
+        this->size += 1;  // Aumentamos 1 al tamaño de la lista.
     }
 
-    else {
-        this->tail->next = nuevo_nodo_final;
-        nuevo_nodo_final->prev = this->tail;
-        this->tail = nuevo_nodo_final;
-        this->size += 1;
+    else {  // Caso en el cual la lista no esta vacía.
+        this->tail->next = nuevo_nodo_final; // El siguiente a la "cola" actual pasa a ser el nuevo nodo.
+        nuevo_nodo_final->prev = this->tail;  // El anterior al nuevo nodo pasa a ser la "cola" antigua de la lista.
+        this->tail = nuevo_nodo_final;  // Definimos la "cola" de la lista como el nuevo nodo agregado.
+        this->size += 1;  // Agregamos 1 al tamaño de la lista.
     }
 }
 
@@ -374,16 +374,23 @@ T List<T>::pop_head() {
 
     // TODO: sacar el primer nodo (con delete), devolver su valor.
 
-    T valor_del_nodo_inicial = this->head->value;  // Guardamos el valor de la "cabeza" de la lista para poder devolverlo al final y no perderlo
-                                                  //  al momento de eliminar su nodo correspondiente.
+    Node* cabeza_antigua_a_borrar = this->head;  // Definimos el nodo (la "cabeza") de la lista que vamos a eliminar.
+    T valor_del_nodo_antiguo = cabeza_antigua_a_borrar->value; // Guardamos el valor de la "cabeza" de la lista para poder devolverlo al final 
+                                                              //  y no perderlo al momento de eliminar su nodo correspondiente.
 
-    delete this->head;  // Borramos el nodo (nodo de la "cabeza" antigua de la lista) y liberamos su memoria.
+    this->head = cabeza_antigua_a_borrar->next;  // Actualizamos el puntero de la "cabeza" de la lista para que apunte a su nodo siguiente.
+    delete cabeza_antigua_a_borrar; // Borramos el nodo (nodo de la "cabeza" antigua de la lista) y liberamos su memoria.
 
-    this->head = this->head->next;  // Actualizamos el puntero de la "cabeza" de la lista para que apunte a su nodo siguiente.
-    this->head->prev = nullptr;   // Actualizamos el puntero previo de la "cabeza" de la lista a "nullptr" 
-                                 // (puntero vacío ya que es el anterior a la nueva "cabeza").
+    this->size -= 1;  // Restamos 1 al tamaño de la lista luego de eliminar el nodo.
+
+    if (this->head != nullptr) {  // Verificamos que la nueva "cabeza" de la lista no sea un puntero nulo luego de eliminar el nodo antiguo.
+                                  // (Caso en el que la lista tiene un solo elemento: Únicamente tenía al nodo "cabeza" antiguo.)
+
+        this->head->prev = nullptr;  // Actualizamos el puntero previo de la "cabeza" de la lista a "nullptr"
+    }                               // (puntero vacío ya que es el anterior a la nueva "cabeza").
     
-    return valor_del_nodo_inicial;  // Devolvemos el valor de la "cabeza" antigua de la lista.
+    
+    return valor_del_nodo_antiguo;  // Devolvemos el valor de la "cabeza" antigua de la lista.
 }
 
 template<typename T>
@@ -391,15 +398,20 @@ T List<T>::pop_tail() {
 
     // TODO: sacar el último nodo (con delete), devolver su valor.
 
-    T valor_del_nodo_final = this->tail->value;  // Guardamos el valor de la "cola" de la lista para poder devolverlo luego y no perderlo al 
-                                                //  momento de eliminar su nodo correspondiente.
+    Node* cola_antigua_a_borrar = this->tail; // Definimos la "cola" de la lista que vamos a eliminar.
+    T valor_del_nodo_final_antiguo = cola_antigua_a_borrar->value;  // Guardamos el valor de la "cola" de la lista para poder  
+                                                //  devolverlo luego y no perderlo al momento de eliminar su nodo correspondiente.
 
-    delete this->tail;  // Eliminamos el nodo (nodo de la "cola" antigua de la lista) y liberamos su memoria.
+    this->tail = cola_antigua_a_borrar->prev;  // Actualizamos el puntero de la "cola" de la lista para que apunte a su nodo anterior.
+    delete cola_antigua_a_borrar;  // Eliminamos el nodo (nodo de la "cola" antigua de la lista) y liberamos su memoria.
 
-    this->tail = this->tail->prev;  // Actualizamos el puntero de la "cola" de la lista para que apunte a su nodo anterior.
-    this->tail->next = nullptr;  // Actualizamos el puntero siguiente a la "cola" de la lista para que apunte a "nullptr".
+    this->size -= 1;  // Restamos 1 al tamaño de la lista luego de eliminar el nodo.
 
-    return valor_del_nodo_final;  // Devolvemos el valor de la "cola" antigua de la lista.
+    if (this->tail != nullptr) { // Verificamos que la nueva "cola" de la lista no sea un puntero nulo.
+        this->tail->next = nullptr;  // Actualizamos el puntero siguiente a la "cola" de la lista para que apunte a "nullptr".
+    }
+    
+    return valor_del_nodo_final_antiguo;  // Devolvemos el valor de la "cola" antigua de la lista.
 }
 
 template<typename T>
@@ -490,7 +502,7 @@ bool List<T>::ListIter::insert_after(const T&value) {
         return true;
     }
     else{ // caso lista no vacia
-        Node *next = curr->next; // gurado puntero al siguiente al curr
+        Node *next = curr->next; // guardo puntero al siguiente al curr
         curr->next = nuevo; // siguiente curr = nuevo
         nuevo->prev = curr; // el prev de nuevo es curr
         nuevo->next = next; // el sig de nuevo es el que era el next del curr originalmente
