@@ -442,49 +442,127 @@ List<T>::ListIter::ListIter(List *list, List::Node *start) {
 
 template <typename T>
 bool List<T>::ListIter::forward() {
-    // TODO: avanzar una posición si se puede.
-    return false;
+    if(curr != nullptr && curr->next != nullptr){ //Chequeo primero que el curr sea distinto de null asi descarto la lista vacia y ahi si miro que el siguiente tampoco sea null
+        curr= curr->next; // Lo muevo al siguiente y duelvo True
+        return true;
+    }
+    return false; // El siguiente era Nullptr por lo que devuelvo False
 }
 
 template <typename T>
 bool List<T>::ListIter::backward() {
-    // TODO: retroceder una posición si se puede.
+    if(curr != nullptr && curr->prev != nullptr){// Igual que el anterior pero esta vez con Prev
+        curr = curr->prev; // Actualizo curr
+        return true;
+    }
     return false;
 }
 
 template <typename T>
 const T&  List<T>::ListIter::peek_current() const {
-    // TODO: devolver el valor actual
+    return curr->value; // Devuelvo el valor del actual
 }
 
 template <typename T>
 bool List<T>::ListIter::at_last() const {
-    // TODO: devolver si el iterador está en el último elemento.
+    if(curr != nullptr && curr->next == nullptr) return true;// Me fijo curr no null y si su sig es null estamos en la tail sino no
     return false;
 }
 
 template <typename T>
 bool List<T>::ListIter::at_first() const {
-    // TODO: devolver si el iterador está en el primer elemento.
+    if(curr != nullptr && curr->prev == nullptr) return true;// Me fijo curr no null y si su prev es null estamos en el head sino no
     return false;
 }
 
 template <typename T>
 bool List<T>::ListIter::insert_after(const T&value) {
-    // TODO: insertar un valor detrás del actual con new.
-    return false;
+    Node *nuevo = new Node(value);
+    if(list->size == 0){// Caso de lista vacia 
+        nuevo->next = nullptr; //sig nullptr
+        nuevo->prev = nullptr; //prev nullptr
+
+        list->head = nuevo; // nuevo head = nuevo
+        list->tail = nuevo; // nuevo tail = nuevo
+        curr = nuevo; // act = nuevo
+
+        list->size++; // agrando el size
+        return true;
+    }
+    else{ // caso lista no vacia
+        Node *next = curr->next; // gurado puntero al siguiente al curr
+        curr->next = nuevo; // siguiente curr = nuevo
+        nuevo->prev = curr; // el prev de nuevo es curr
+        nuevo->next = next; // el sig de nuevo es el que era el next del curr originalmente
+        if(next != nullptr){
+            next->prev = nuevo; // si el sig de curr no es null su previo es el agregado
+        }
+        else{
+            list->tail = nuevo; // sig de curr null entonces el nuevo es el tail
+        }
+        list->size++; // agrego 1 al tamaño de la lista
+    }
+    return true;
 }
 
 template <typename T>
 bool List<T>::ListIter::insert_before(const T&value) {
-    // TODO: insertar un valor delante del actual con new.
-    return false;
+    Node *nuevo = new Node(value);
+    if(list->size == 0){// Caso de lista vacia 
+        nuevo->next = nullptr; //sig nullptr
+        nuevo->prev = nullptr; //prev nullptr
+
+        list->head = nuevo; // nuevo head = nuevo
+        list->tail = nuevo; // nuevo tail = nuevo
+        curr = nuevo; // act = nuevo
+
+        list->size++; // agrando el size
+        return true;
+    }
+    else{ // caso lista no vacia
+        Node *prev = curr->prev; // gurado puntero al prev al curr
+        curr->prev = nuevo; // prev curr = nuevo
+        nuevo->next = curr; // el sig de nuevo es curr
+        nuevo->prev = prev; // el prev de nuevo es el que era el prev del curr originalmente
+        if(prev != nullptr){
+            prev->next = nuevo; // si el prev de curr no es null su next es el agregado
+        }
+        else{
+            list->head = nuevo; // prev de curr null entonces el nuevo es el head
+        }
+        list->size++; // agrego 1 al tamaño de la lista
+    }
+    return true;
 }
 
 template <typename T>
 T List<T>::ListIter::remove() {
-    // TODO: sacar el nodo actual (con delete), reposicionar el iterador
-    // y devolver el valor que tenía.
+    Node *sig = curr->next; // Guardo siguiente de Curr
+    Node *prev = curr->prev; // Guardo previo de Curr
+    T value = curr->value; // Copio el Value del Curr
+    if(prev != nullptr){ //Caso previo no null
+        prev->next = sig; // prev sig = sig
+    }
+    else{
+        list->head = sig; // si prev es null entonces el head es el sig
+    }
+    if(sig != nullptr){ // Caso sig no null
+        sig->prev = prev; // sig prev es prev
+    }
+    else{
+        list->tail = prev; // si sig es null entonces tail es prev
+    }
+
+    if(sig!= nullptr){
+        curr = sig; // si sig no es null muevo el curr a sig
+    }
+    else{
+        curr = prev; // al ser sig nulo muevo el curr a prev
+    }
+
+    list->size--; // resto uno al size
+    delete curr; // borro el curr
+    return value; // retorno el value del curr
 }
 
 #endif // TP2_H
