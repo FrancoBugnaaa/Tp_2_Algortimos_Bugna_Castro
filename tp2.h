@@ -470,7 +470,7 @@ typename List<T>::ListIter List<T>::create_head() {
 
     // TODO: retornar un iterador parado en el principio de la lista.
 
-    return ListIter(this->head);  // Devolvemos el iterador parado en la "cabeza" de la lista.
+    return ListIter(this, this->head);  // Devolvemos el iterador parado en la "cabeza" de la lista.
 }
 
 template <typename T>
@@ -478,7 +478,7 @@ typename List<T>::ListIter List<T>::create_tail() {
 
     // TODO: retornar un iterador parado en el final de la lista.
 
-    return ListIter(this->tail);  // Retornamos el iterador situado en la "cola" de la lista.
+    return ListIter(this, this->tail);  // Retornamos el iterador situado en la "cola" de la lista.
 }
 
 /* ---------------------------------------------------------------
