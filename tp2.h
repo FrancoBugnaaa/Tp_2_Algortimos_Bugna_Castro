@@ -361,12 +361,15 @@ void List<T>::insert_head(const T& value) {
     Node* nuevo_nodo_inicio = new Node(value);  // Creamos un nuevo nodo.
 
     if (this->size == 0) {   // Comprobamos si la lista está vacía.
+        nuevo_nodo_inicio->next = nullptr;
+        nuevo_nodo_inicio->prev = nullptr;
         this->head = nuevo_nodo_inicio; // La "cabeza" de la lista pasa a ser el nuevo nodo.
         this->tail = nuevo_nodo_inicio; // La "cola" de la lista pasa a ser el nuevo nodo.
         this->size += 1;  // Agregamos 1 al tamaño de la lista luego de insertar el nuevo nodo.
     }
 
     else {  // Chequeamos el caso en el cual la lista no esta vacía de antemano.
+        nuevo_nodo_inicio->prev = nullptr;
         nuevo_nodo_inicio->next = this->head;  // El puntero siguiente al nuevo nodo pasa a ser la "cabeza" del anterior nodo.
         this->head->prev = nuevo_nodo_inicio;  // El puntero previo al de la "cabeza" del nodo antiguo pasa a ser el nuevo nodo.
         this->head = nuevo_nodo_inicio;  // La "cabeza" de la lista pasa a ser el nuevo nodo incorporado.
@@ -384,12 +387,15 @@ void List<T>::insert_tail(const T& value) {
     Node* nuevo_nodo_final = new Node(value);  // Creamos un nuevo nodo que insertaremos al final de la lista.
 
     if (this->size == 0) {  // Comprobamos si la lista está vacía
+        nuevo_nodo_final->next = nullptr;
+        nuevo_nodo_final->prev = nullptr;
         this->head = nuevo_nodo_final;  // La "cabeza" pasa a ser el nuevo nodo agregado.
         this->tail = nuevo_nodo_final;  // La "cola" pasa a ser igualmente el nuevo nodo agregado ya que la lista tiene un solo elemento.
         this->size += 1;  // Aumentamos 1 al tamaño de la lista.
     }
 
     else {  // Caso en el cual la lista no esta vacía.
+        nuevo_nodo_final->next = nullptr;
         this->tail->next = nuevo_nodo_final; // El siguiente a la "cola" actual pasa a ser el nuevo nodo.
         nuevo_nodo_final->prev = this->tail;  // El anterior al nuevo nodo pasa a ser la "cola" antigua de la lista.
         this->tail = nuevo_nodo_final;  // Definimos la "cola" de la lista como el nuevo nodo agregado.
