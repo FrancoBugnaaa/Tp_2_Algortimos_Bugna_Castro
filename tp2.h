@@ -296,11 +296,40 @@ List<T> &List<T>::operator=(const List<T> &other) {
 
     // TODO: reemplazar la lista actual con una copia independiente de other
     // La memoria anterior no debe perderse, sino liberarse correctamente
+
+    if (this == &other) {  // Corroboramos si la dirección de memoria de la lista actual es la misma que la de la lista "other".
+        return *this;  // Devolvemos la misma lista debido a que son iguales.
+    }
+
+    while (this->head != nullptr) {
+        this->pop_head();  // Eliminamos la "cabeza" de la lista mientras la misma no sea "nullptr".
+    }
+
+    const Node* nodo_nuevo = other.head;
+    while (nodo_nuevo != nullptr) {  // Comprobamos que el nodo que colocaremos en la lista no sea un puntero nulo.
+        this->insert_tail(nodo_nuevo->value);  // Insertamos el valor del nuevo nodo en la "cola" de la lista.
+        nodo_nuevo = nodo_nuevo->next;  // Actualizamos el nodo nuevo para que apunte a su siguiente.
+    }
+
+    return *this;  // Devolvemos la lista final.
 }
 
 template<typename T>
 List<T>::~List() {
+
     // TODO: liberar todos los nodos que queden con delete.
+
+    Node* nodo_actual = this->head;  // Definimos al nodo actual como la "cabeza" de la lista.
+
+    while (nodo_actual != nullptr) {  // Comprobamos que el nodo actual sea distinto de "nullptr" (puntero nulo).
+        Node* nodo_a_borrar = nodo_actual;  // Definimos el nodo a eliminar como el nodo actual.
+        nodo_actual = nodo_actual->next;  // Movemos el puntero del nodo actual para que apunte a su siguiente.
+        delete nodo_a_borrar;  // Eliminamos el nodo que era la anterior "cabeza" de la lista.
+    }
+
+    this->head = nullptr;  // Establecemos la "cabeza" de la lista en nullptr ya que se eliminaron todos los nodos.
+    this->tail = nullptr;  // Establecemos la "cola" de la lista en nullptr debido a que se eliminaron todos los nodos.
+    this->size = 0;  // Colocamos el tamaño de la lista en 0 dado que no tiene nodos.
 }
 
 template<typename T>
@@ -332,19 +361,18 @@ void List<T>::insert_head(const T& value) {
     Node* nuevo_nodo_inicio = new Node(value);  // Creamos un nuevo nodo.
 
     if (this->size == 0) {   // Comprobamos si la lista está vacía.
-        this->head = nuevo_nodo; // La "cabeza" de la lista pasa a ser el nuevo nodo.
-        this->tail = nuevo_nodo; // La "cola" de la lista pasa a ser el nuevo nodo.
+        this->head = nuevo_nodo_inicio; // La "cabeza" de la lista pasa a ser el nuevo nodo.
+        this->tail = nuevo_nodo_inicio; // La "cola" de la lista pasa a ser el nuevo nodo.
         this->size += 1;  // Agregamos 1 al tamaño de la lista luego de insertar el nuevo nodo.
     }
 
     else {  // Chequeamos el caso en el cual la lista no esta vacía de antemano.
-        nuevo_nodo->next = this->head;  // El puntero siguiente al nuevo nodo pasa a ser la "cabeza" del anterior nodo.
-        this->head->prev = nuevo_nodo;  // El puntero previo al de la "cabeza" del nodo antiguo pasa a ser el nuevo nodo.
-        this->head = nuevo_nodo;  // La "cabeza" de la lista pasa a ser el nuevo nodo incorporado.
+        nuevo_nodo_inicio->next = this->head;  // El puntero siguiente al nuevo nodo pasa a ser la "cabeza" del anterior nodo.
+        this->head->prev = nuevo_nodo_inicio;  // El puntero previo al de la "cabeza" del nodo antiguo pasa a ser el nuevo nodo.
+        this->head = nuevo_nodo_inicio;  // La "cabeza" de la lista pasa a ser el nuevo nodo incorporado.
         this->size += 1;  // Agregamos 1 al tamaño de la lista.
     }
 
-    delete nuevo_nodo;
 }
 
 template<typename T>
@@ -388,10 +416,13 @@ T List<T>::pop_head() {
 
         this->head->prev = nullptr;  // Actualizamos el puntero previo de la "cabeza" de la lista a "nullptr"
     }                               // (puntero vacío ya que es el anterior a la nueva "cabeza").
-    
+
+    else {
+        this->tail = nullptr;   // Definimos la "cola" de la lista en "nullptr" luego de eliminar el único nodo que había anteriormente.
+    }
     
     return valor_del_nodo_antiguo;  // Devolvemos el valor de la "cabeza" antigua de la lista.
-}
+} 
 
 template<typename T>
 T List<T>::pop_tail() {
@@ -410,12 +441,16 @@ T List<T>::pop_tail() {
     if (this->tail != nullptr) { // Verificamos que la nueva "cola" de la lista no sea un puntero nulo.
         this->tail->next = nullptr;  // Actualizamos el puntero siguiente a la "cola" de la lista para que apunte a "nullptr".
     }
+
+    else {
+        this->head = nullptr;  // Definimos la "cabeza" de la lista en "nullptr" luego de eliminar el único nodo que había anteriormente.
+    }
     
     return valor_del_nodo_final_antiguo;  // Devolvemos el valor de la "cola" antigua de la lista.
 }
 
 template<typename T>
-const T& List<T>::peek_head() const {
+const T& List<T>::peek_head() const { 
 
     // TODO: devolver el valor del principio.
 
@@ -432,12 +467,18 @@ const T& List<T>::peek_tail() const {
 
 template <typename T>
 typename List<T>::ListIter List<T>::create_head() {
+
     // TODO: retornar un iterador parado en el principio de la lista.
+
+    return ListIter(this->head);  // Devolvemos el iterador parado en la "cabeza" de la lista.
 }
 
 template <typename T>
 typename List<T>::ListIter List<T>::create_tail() {
+
     // TODO: retornar un iterador parado en el final de la lista.
+
+    return ListIter(this->tail);  // Retornamos el iterador situado en la "cola" de la lista.
 }
 
 /* ---------------------------------------------------------------
@@ -454,8 +495,8 @@ List<T>::ListIter::ListIter(List *list, List::Node *start) {
 
 template <typename T>
 bool List<T>::ListIter::forward() {
-    if(curr != nullptr && curr->next != nullptr){ //Chequeo primero que el curr sea distinto de null asi descarto la lista vacia y ahi si miro que el siguiente tampoco sea null
-        curr= curr->next; // Lo muevo al siguiente y duelvo True
+    if(curr != nullptr && curr->next != nullptr){ // Chequeo primero que el curr sea distinto de null asi descarto la lista vacia y ahi si miro que el siguiente tampoco sea null
+        curr = curr->next; // Lo muevo al siguiente y devuelvo True
         return true;
     }
     return false; // El siguiente era Nullptr por lo que devuelvo False
@@ -463,7 +504,7 @@ bool List<T>::ListIter::forward() {
 
 template <typename T>
 bool List<T>::ListIter::backward() {
-    if(curr != nullptr && curr->prev != nullptr){// Igual que el anterior pero esta vez con Prev
+    if(curr != nullptr && curr->prev != nullptr){ // Igual que el anterior pero esta vez con Prev
         curr = curr->prev; // Actualizo curr
         return true;
     }
@@ -477,20 +518,20 @@ const T&  List<T>::ListIter::peek_current() const {
 
 template <typename T>
 bool List<T>::ListIter::at_last() const {
-    if(curr != nullptr && curr->next == nullptr) return true;// Me fijo curr no null y si su sig es null estamos en la tail sino no
+    if(curr != nullptr && curr->next == nullptr) return true; // Me fijo curr no null y si su sig es null estamos en la tail sino no
     return false;
 }
 
 template <typename T>
 bool List<T>::ListIter::at_first() const {
-    if(curr != nullptr && curr->prev == nullptr) return true;// Me fijo curr no null y si su prev es null estamos en el head sino no
+    if(curr != nullptr && curr->prev == nullptr) return true; // Me fijo curr no null y si su prev es null estamos en el head sino no
     return false;
 }
 
 template <typename T>
 bool List<T>::ListIter::insert_after(const T&value) {
     Node *nuevo = new Node(value);
-    if(list->size == 0){// Caso de lista vacia 
+    if(list->size == 0){ // Caso de lista vacia 
         nuevo->next = nullptr; //sig nullptr
         nuevo->prev = nullptr; //prev nullptr
 
@@ -520,7 +561,7 @@ bool List<T>::ListIter::insert_after(const T&value) {
 template <typename T>
 bool List<T>::ListIter::insert_before(const T&value) {
     Node *nuevo = new Node(value);
-    if(list->size == 0){// Caso de lista vacia 
+    if(list->size == 0){ // Caso de lista vacia 
         nuevo->next = nullptr; //sig nullptr
         nuevo->prev = nullptr; //prev nullptr
 
@@ -552,7 +593,7 @@ T List<T>::ListIter::remove() {
     Node *sig = curr->next; // Guardo siguiente de Curr
     Node *prev = curr->prev; // Guardo previo de Curr
     T value = curr->value; // Copio el Value del Curr
-    if(prev != nullptr){ //Caso previo no null
+    if(prev != nullptr){ // Caso previo no null
         prev->next = sig; // prev sig = sig
     }
     else{
