@@ -599,6 +599,7 @@ T List<T>::ListIter::remove() {
     Node *sig = curr->next; // Guardo siguiente de Curr
     Node *prev = curr->prev; // Guardo previo de Curr
     T value = curr->value; // Copio el Value del Curr
+    Node *borrar = curr;
     if(prev != nullptr){ // Caso previo no null
         prev->next = sig; // prev sig = sig
     }
@@ -620,7 +621,7 @@ T List<T>::ListIter::remove() {
     }
 
     list->size--; // resto uno al size
-    delete curr; // borro el curr
+    delete borrar; // borro el borrar
     return value; // retorno el value del curr
 }
 
